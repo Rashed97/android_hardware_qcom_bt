@@ -74,12 +74,7 @@ LOCAL_VENDOR_MODULE := true
 
 ifeq ($(QCOM_BT_USE_BTNV),true)
 LOCAL_CFLAGS += -DBT_NV_SUPPORT
-LOCAL_CFLAGS += -Wno-unused-variable
-LOCAL_CFLAGS += -Wno-unused-label
 LOCAL_CFLAGS += -Wno-user-defined-warnings
-LOCAL_CFLAGS += -Wno-unused-parameter
-LOCAL_CFLAGS += -Wno-incompatible-pointer-types-discards-qualifiers
-LOCAL_CFLAGS += -Wno-unused-function
 LOCAL_CFLAGS += -Wno-enum-conversion
 ifeq ($(QCPATH),)
 LOCAL_SHARED_LIBRARIES += libdl
@@ -95,6 +90,16 @@ endif
 ifeq ($(QCOM_BT_READ_ADDR_FROM_PROP),true)
 LOCAL_CFLAGS += -DREAD_BT_ADDR_FROM_PROP
 endif
+
+LOCAL_CFLAGS += \
+      -Wall \
+      -Werror \
+      -Wno-error=user-defined-warnings \
+      -Wno-incompatible-pointer-types-discards-qualifiers \
+      -Wno-unused-function \
+      -Wno-unused-label \
+      -Wno-unused-variable \
+      -Wno-unused-parameter
 
 #include $(LOCAL_PATH)/vnd_buildcfg.mk
 

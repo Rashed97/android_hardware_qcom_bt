@@ -29,13 +29,17 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <android/hardware/bluetooth/1.0/IBluetoothHci.h>
 
+#ifdef USES_HIDL_ANT
 #include <com/qualcomm/qti/ant/1.0/IAntHci.h>
 #include <com/qualcomm/qti/ant/1.0/IAntHciCallbacks.h>
 #include <com/qualcomm/qti/ant/1.0/types.h>
+#endif
 
+#ifdef USES_HIDL_FM
 #include <vendor/qti/hardware/fm/1.0/IFmHci.h>
 #include <vendor/qti/hardware/fm/1.0/IFmHciCallbacks.h>
 #include <vendor/qti/hardware/fm/1.0/types.h>
+#endif
 
 #include <sys/socket.h>
 #include <cutils/sockets.h>
@@ -51,12 +55,20 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using android::hardware::bluetooth::V1_0::IBluetoothHci;
 using ::android::hardware::hidl_vec;
+#ifdef USES_HIDL_ANT
 using com::qualcomm::qti::ant::V1_0::IAntHci;
+#endif
+#ifdef USES_HIDL_FM
 using vendor::qti::hardware::fm::V1_0::IFmHci;
+#endif
 
 extern android::sp<IBluetoothHci> btHci;
+#ifdef USES_HIDL_ANT
 extern android::sp<IAntHci> antHci;
+#endif
+#ifdef USES_HIDL_FM
 extern android::sp<IFmHci> fmHci;
+#endif
 
 extern int server_fd;
 
@@ -122,6 +134,7 @@ void *process_tool_data(void *arg) {
                 btHci->sendScoData(*data);
                 break;
 
+#ifdef USES_HIDL_ANT
             case ANT_PACKET_TYPE_CTRL:
                 antHci->sendAntControl(*data);
                 break;
@@ -129,11 +142,14 @@ void *process_tool_data(void *arg) {
             case ANT_PACKET_TYPE_DATA:
                 antHci->sendAntData(*data);
                 break;
+#endif
 
+#ifdef USES_HIDL_FM
             case FM_PACKET_TYPE_CMD:
                 ALOGI("%s: Send FM Cmd ", __func__);
                 fmHci->sendHciCommand(*data);
                 break;
+#endif
             default:
                 ALOGE("%s: Unsupported packet type: %d", __func__, packet_type);
         }
@@ -162,6 +178,7 @@ static int get_preamble_length(char packet_type) {
             preamble_len = BT_EVENT_PREAMBLE_SIZE;
             break;
 
+#ifdef USES_HIDL_ANT
         case ANT_PACKET_TYPE_CTRL:
             preamble_len = ANT_COMMAND_PREAMBLE_SIZE;
             break;
@@ -169,7 +186,9 @@ static int get_preamble_length(char packet_type) {
         case ANT_PACKET_TYPE_DATA:
             preamble_len = ANT_COMMAND_PREAMBLE_SIZE;
             break;
+#endif
 
+#ifdef USES_HIDL_FM
         case FM_PACKET_TYPE_CMD:
             preamble_len = FM_COMMAND_PREAMBLE_SIZE;
             break;
@@ -177,6 +196,7 @@ static int get_preamble_length(char packet_type) {
         case FM_PACKET_TYPE_EVENT:
             preamble_len = FM_EVENT_PREAMBLE_SIZE;
             break;
+#endif
 
         default:
             break;
@@ -204,6 +224,7 @@ static int get_pkt_len_offset(char packet_type) {
             len_offset = BT_LENGTH_OFFSET_EVT;
             break;
 
+#ifdef USES_HIDL_ANT
         case ANT_PACKET_TYPE_CTRL:
             len_offset = ANT_LENGTH_OFFSET_CMD;
             break;
@@ -211,7 +232,9 @@ static int get_pkt_len_offset(char packet_type) {
         case ANT_PACKET_TYPE_DATA:
             len_offset = ANT_LENGTH_OFFSET_CMD;
             break;
+#endif
 
+#ifdef USES_HIDL_FM
         case FM_PACKET_TYPE_CMD:
             len_offset = FM_LENGTH_OFFSET_CMD;
             break;
@@ -219,6 +242,7 @@ static int get_pkt_len_offset(char packet_type) {
         case FM_PACKET_TYPE_EVENT:
             len_offset = FM_LENGTH_OFFSET_EVT;
             break;
+#endif
 
         default:
             break;

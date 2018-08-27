@@ -20,8 +20,14 @@ LOCAL_SHARED_LIBRARIES += libutils
 LOCAL_SHARED_LIBRARIES += libhidlbase
 LOCAL_SHARED_LIBRARIES += libhidltransport
 LOCAL_SHARED_LIBRARIES += android.hardware.bluetooth@1.0
+ifeq ($(BOARD_USES_HIDL_QTI_ANT),true)
 LOCAL_SHARED_LIBRARIES += com.qualcomm.qti.ant@1.0
+LOCAL_CFLAGS += -DUSES_HIDL_ANT
+endif
+ifeq ($(BOARD_USES_HIDL_QTI_FM),true)
 LOCAL_SHARED_LIBRARIES += vendor.qti.hardware.fm@1.0
+LOCAL_CFLAGS += -DUSES_HIDL_FM
+endif
 LOCAL_SHARED_LIBRARIES += liblog
 
 LOCAL_MODULE_PATH_32 := $(TARGET_OUT_VENDOR)/lib

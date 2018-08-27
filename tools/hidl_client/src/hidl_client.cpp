@@ -23,14 +23,18 @@
 #include <android/hardware/bluetooth/1.0/types.h>
 #include <hwbinder/ProcessState.h>
 
+#ifdef USES_HIDL_ANT
 #include <com/qualcomm/qti/ant/1.0/IAntHci.h>
 #include <com/qualcomm/qti/ant/1.0/IAntHciCallbacks.h>
 #include <com/qualcomm/qti/ant/1.0/types.h>
+#endif
 
 
+#ifdef USES_HIDL_FM
 #include <vendor/qti/hardware/fm/1.0/IFmHci.h>
 #include <vendor/qti/hardware/fm/1.0/IFmHciCallbacks.h>
 #include <vendor/qti/hardware/fm/1.0/types.h>
+#endif
 
 #include <sys/un.h>
 #include <netinet/in.h>
@@ -49,11 +53,15 @@ using android::hardware::bluetooth::V1_0::IBluetoothHciCallbacks;
 using android::hardware::bluetooth::V1_0::HciPacket;
 using android::hardware::bluetooth::V1_0::Status;
 
+#ifdef USES_HIDL_ANT
 using com::qualcomm::qti::ant::V1_0::IAntHci;
 using com::qualcomm::qti::ant::V1_0::IAntHciCallbacks;
+#endif
 
+#ifdef USES_HIDL_FM
 using vendor::qti::hardware::fm::V1_0::IFmHci;
 using vendor::qti::hardware::fm::V1_0::IFmHciCallbacks;
+#endif
 
 using android::hardware::ProcessState;
 using ::android::hardware::Return;
@@ -86,8 +94,12 @@ int server_fd = -1;
 int client_fd = -1;
 
 android::sp<IBluetoothHci> btHci;
+#ifdef USES_HIDL_ANT
 android::sp<IAntHci> antHci;
+#endif
+#ifdef USES_HIDL_FM
 android::sp<IFmHci> fmHci;
+#endif
 
 class BluetoothHciCallbacks : public IBluetoothHciCallbacks {
 
@@ -148,6 +160,7 @@ class BluetoothHciCallbacks : public IBluetoothHciCallbacks {
     }
 };
 
+#ifdef USES_HIDL_ANT
 namespace
 {
 using com::qualcomm::qti::ant::V1_0::AntPacket;
@@ -200,7 +213,9 @@ class AntHciCallbacks : public IAntHciCallbacks {
        return Void();
    }
 };
+#endif
 
+#ifdef USES_HIDL_FM
 namespace
 {
  using vendor::qti::hardware::fm::V1_0::HciPacket;
@@ -239,6 +254,7 @@ namespace
 };
 }
 }
+#endif
 
 
 #ifdef __cplusplus
@@ -282,6 +298,7 @@ bool hidl_client_initialize(int mode, int *tool_fd) {
                 return false;
             }
 
+#ifdef USES_HIDL_ANT
         case MODE_ANT:
             ALOGI("%s: Initialize the HIDL with Mode ANT", __func__);
             antHci = IAntHci::getService();
@@ -307,7 +324,9 @@ bool hidl_client_initialize(int mode, int *tool_fd) {
                 ALOGE("%s: HIDL failed to initialize, sending invalid FD to tool", __func__);
                 return false;
             }
+#endif
 
+#ifdef USES_HIDL_FM
         case MODE_FM:
             ALOGI("%s: Initialize the HIDL with Mode FM", __func__);
             fmHci = IFmHci::getService();
@@ -327,6 +346,7 @@ bool hidl_client_initialize(int mode, int *tool_fd) {
               ALOGV("%s: Wait for initialisation callback", __func__);
               sem_wait(&s_cond);
             }
+#endif
             if (hidl_init == true) {
                if (client_fd > 0) {
                    *tool_fd = client_fd;
@@ -384,17 +404,21 @@ void hidl_client_close() {
             btHci = nullptr;
             break;
 
+#ifdef USES_HIDL_ANT
         case MODE_ANT:
             ALOGI("%s: Close HIDL with Mode ANT", __func__);
             antHci->close();
             antHci = nullptr;
             break;
+#endif
 
+#ifdef USES_HIDL_FM
         case MODE_FM:
             ALOGI("%s: Close HIDL with Mode FM", __func__);
             fmHci->close();
             fmHci = nullptr;
             break;
+#endif
 
         default:
             ALOGE("Unsupported mode");

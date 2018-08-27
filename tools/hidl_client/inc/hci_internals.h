@@ -36,10 +36,14 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define BT_PACKET_TYPE_ACL_DATA 2
 #define BT_PACKET_TYPE_SCO_DATA 3
 #define BT_PACKET_TYPE_EVENT    4
+#ifdef USES_HIDL_ANT
 #define ANT_PACKET_TYPE_CTRL    0x0c
 #define ANT_PACKET_TYPE_DATA    0x0e
+#endif
+#ifdef USES_HIDL_FM
 #define FM_PACKET_TYPE_CMD      0x11
 #define FM_PACKET_TYPE_EVENT    0x14
+#endif
 
 // Re-run |fn| system call until the system call doesn't cause EINTR.
 #define CLIENT_NO_INTR(fn)  do {} while ((fn) == -1 && errno == EINTR)
@@ -62,14 +66,18 @@ const int BT_LENGTH_OFFSET_SCO = 2;
 const int BT_EVENT_PREAMBLE_SIZE = 2;
 const int BT_LENGTH_OFFSET_EVT = 1;
 
+#ifdef USES_HIDL_ANT
 const int ANT_COMMAND_PREAMBLE_SIZE = 1;
 const int ANT_LENGTH_OFFSET_CMD = 0;
+#endif
 
+#ifdef USES_HIDL_FM
 const int FM_COMMAND_PREAMBLE_SIZE = 3;
 const int FM_LENGTH_OFFSET_CMD = 2;
 
 const int FM_EVENT_PREAMBLE_SIZE = 2;
 const int FM_LENGTH_OFFSET_EVT = 1;
+#endif
 
 const int PREAMBLE_SIZE_MAX = BT_ACL_PREAMBLE_SIZE;
 
